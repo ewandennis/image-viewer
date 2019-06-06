@@ -1,25 +1,23 @@
 import React from 'react';
-import logo from './logo.svg';
-import './App.css';
+import useImageService from './useImageService';
+import { webSocketEndpoint } from './config';
+
+const Loading = () => <strong>Hold please...</strong>;
 
 function App() {
-  return (
-    <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.js</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
-    </div>
+  const { images, uploadImage } = useImageService(webSocketEndpoint);
+  const onUploadClick = React.useCallback(() => uploadImage('bingo.jpg'), [uploadImage]);
+  return images === null ? (
+    <Loading />
+  ) : (
+    <>
+      <ul>
+        {images.map((img, idx) => (
+          <li key={idx}>{img}</li>
+        ))}
+      </ul>
+      <button onClick={onUploadClick}>Upload image</button>
+    </>
   );
 }
 
