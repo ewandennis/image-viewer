@@ -1,0 +1,16 @@
+{
+  "name": "image-viewer-api",
+  "version": "1.0.0",
+  "description": "Image Viewer API Service",
+  "main": "index.js",
+  "scripts": {
+    "start": "node index"
+  },
+  "keywords": [],
+  "author": "Ewan Dennis <ewandennis@users.noreply.github.com>",
+  "license": "Apache-2.0",
+  "dependencies": {
+    "express": "^4.17.1",
+    "socket.io": "^2.2.0"
+  }
+}
