@@ -1,22 +1,25 @@
 import React from 'react';
-import useImageService from './useImageService';
-import { webSocketEndpoint } from './config';
+import AppBar from '@material-ui/core/AppBar';
+import CameraIcon from '@material-ui/icons/PhotoCamera';
+import CssBaseline from '@material-ui/core/CssBaseline';
+import Toolbar from '@material-ui/core/Toolbar';
+import Typography from '@material-ui/core/Typography';
+import ImageGrid from './ImageGrid';
 
-const Loading = () => <strong>Hold please...</strong>;
 
 function App() {
-  const { images, uploadImage } = useImageService(webSocketEndpoint);
-  const onUploadClick = React.useCallback(() => uploadImage('bingo.jpg'), [uploadImage]);
-  return images === null ? (
-    <Loading />
-  ) : (
+  return (
     <>
-      <ul>
-        {images.map((img, idx) => (
-          <li key={idx}>{img}</li>
-        ))}
-      </ul>
-      <button onClick={onUploadClick}>Upload image</button>
+      <CssBaseline />
+      <AppBar position="relative">
+        <Toolbar>
+          <CameraIcon />
+          <Typography variant="h4">Image Viewer</Typography>
+        </Toolbar>
+      </AppBar>
+      <main>
+        <ImageGrid />
+      </main>
     </>
   );
 }

@@ -21,8 +21,8 @@ const client = socketIoClient(webSocketEndpoint);
 export default function useImageService(endpoint) {
   const [images, setImages] = React.useState(null);
 
-  const uploadImage = (image) => {
-    client.emit('uploadImage', image);
+  const uploadImage = (filename, image) => {
+    client.emit('uploadImage', { filename, image });
   };
 
   React.useEffect(() => {
