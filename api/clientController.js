@@ -1,10 +1,9 @@
-'use strict';
-
-const imageList = ['image1.jpg', 'image2.jpg'];
+"use strict";
 
 class ClientController {
-  constructor(socketIoServer) {
+  constructor(socketIoServer, imageListModel) {
     this.server = socketIoServer;
+    this.imageListModel = imageListModel;
     this.clients = [];
     this.connectListeners = [];
     this.onClientConnected = this.onClientConnected.bind(this);
@@ -12,14 +11,14 @@ class ClientController {
     this.recvListImages = this.recvListImages.bind(this);
     this.recvUploadImage = this.recvUploadImage.bind(this);
 
-    this.server.on('connection', this.onClientConnected);
+    this.server.on("connection", this.onClientConnected);
 
     this.addConnectListener(socket => {
-      socket.on('uploadImage', (image) => this.recvUploadImage(image));
+      socket.on("uploadImage", image => this.recvUploadImage(socket, image));
     });
 
     this.addConnectListener(socket => {
-      socket.on('listImages', () => this.recvListImages(socket));
+      socket.on("listImages", () => this.recvListImages(socket));
     });
   }
 
@@ -27,10 +26,14 @@ class ClientController {
     this.connectListeners.push(listener);
   }
 
-  onClientConnected(socket) {
-    socket.on('disconnect', this.onClientDisconnected);
-    this.clients.push(socket);
+  notifyListeners(socket) {
     this.connectListeners.forEach(listener => listener(socket));
+  }
+
+  onClientConnected(socket) {
+    socket.on("disconnect", this.onClientDisconnected);
+    this.clients.push(socket);
+    this.notifyListeners(socket);
     this.sendImageList(socket);
   }
 
@@ -38,22 +41,31 @@ class ClientController {
     this.clients = this.clients.filter(socket => socket !== leavingSocket);
   }
 
-  recvUploadImage(image) {
+  recvUploadImage(socket, image) {
     // TODO validate msg
-    imageList.push(image);
-    this.broadcastImageAdded(image);
+    this.imageListModel
+      .addImage(image)
+      .then(filename => {
+        this.broadcastImageAdded({ filename, image: image.image });
+      })
+      .catch(err => {
+        console.error(err);
+        socket.emit("uploadError", err.toString());
+      });
   }
 
   recvListImages(socket) {
-    this.sendImageList(socket)
+    this.sendImageList(socket);
   }
 
   sendImageList(socket) {
-    socket.emit('imageList', imageList);
+    this.imageListModel.listImages().then(imageList => {
+      socket.emit("imageList", imageList);
+    });
   }
 
   broadcastImageAdded(image) {
-    this.server.emit('imageAdded', image);
+    this.server.emit("imageAdded", image);
   }
 }
 
