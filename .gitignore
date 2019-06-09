@@ -28,4 +28,6 @@ api/store/*.jpg
 api/store/*.png
 api/store/*.gif
 
+api/public
+
 .vscode
