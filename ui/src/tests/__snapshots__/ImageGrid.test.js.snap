@@ -27,7 +27,7 @@ exports[`ImageGrid renders 1`] = `
       >
         <img
           alt="pic.jpg"
-          src="data:image/png;base64,still-not-very-base64-encoded"
+          src="data:image/jpg;base64,still-not-very-base64-encoded"
         />
       </WithStyles(ForwardRef(GridListTile))>
       <WithStyles(ForwardRef(GridListTile))
@@ -35,7 +35,7 @@ exports[`ImageGrid renders 1`] = `
       >
         <img
           alt="photo.gif"
-          src="data:image/png;base64,still-not-very-base64-encoded"
+          src="data:image/gif;base64,still-not-very-base64-encoded"
         />
       </WithStyles(ForwardRef(GridListTile))>
     </WithStyles(ForwardRef(GridList))>

@@ -1,5 +1,6 @@
 import React from 'react';
 import { shallow } from 'enzyme';
+import path from 'path';
 import ImageGrid from '../ImageGrid';
 import Loading from '../Loading';
 import FileUpload from "../FileUpload";
@@ -38,6 +39,18 @@ describe('ImageGrid', () => {
     const wrapper = subject();
     expect(wrapper.find(Loading)).not.toExist();
     expect(wrapper.find('img')).toHaveLength(mockImageList.length);
+  });
+
+  it('correctly uses image extension', () => {
+    useImageService.mockReturnValueOnce({ images: mockImageList, uploadImage: jest.fn() });
+    const wrapper = subject();
+    expect(wrapper.find(Loading)).not.toExist();
+    const images = wrapper.find('img');
+    images.forEach((image, imageIdx) => {
+      const expectedExtension = path.extname(mockImageList[imageIdx].filename).slice(1);
+      const regExStr = `^data:image\/${expectedExtension}`;
+      expect(image.prop('src')).toMatch(new RegExp(regExStr));
+    });
   });
 
   it('accepts uploads', () => {

@@ -11,6 +11,8 @@ import socketIoClient from 'socket.io-client';
 import { webSocketEndpoint } from "./config";
 import readFile from "./readFile";
 
+const extractFileExtension = (filename) => filename.split('.').pop();
+
 export default function ImageGrid() {
   const [ client, _ ] = useState(socketIoClient(webSocketEndpoint)); // eslint-disable-line no-unused-vars
   const { images, uploadImage } = useImageService(client);
@@ -45,7 +47,7 @@ export default function ImageGrid() {
         <GridList cols={4} spacing={10}>
           {images.map(img => (
             <GridListTile key={img.filename}>
-              <img src={`data:image/png;base64,${img.image}`} alt={img.filename} />
+              <img src={`data:image/${extractFileExtension(img.filename)};base64,${img.image}`} alt={img.filename} />
             </GridListTile>
           ))}
         </GridList>
