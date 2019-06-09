@@ -1,24 +1,24 @@
 "use strict";
 
+const protocol = require('./protocol');
+
 class ClientController {
   constructor(socketIoServer, imageListModel) {
     this.server = socketIoServer;
     this.imageListModel = imageListModel;
-    this.clients = [];
     this.connectListeners = [];
     this.onClientConnected = this.onClientConnected.bind(this);
-    this.onClientDisconnected = this.onClientDisconnected.bind(this);
     this.recvListImages = this.recvListImages.bind(this);
     this.recvUploadImage = this.recvUploadImage.bind(this);
 
     this.server.on("connection", this.onClientConnected);
 
     this.addConnectListener(socket => {
-      socket.on("uploadImage", image => this.recvUploadImage(socket, image));
+      socket.on(protocol.UPLOAD_IMAGE, image => this.recvUploadImage(socket, image));
     });
 
     this.addConnectListener(socket => {
-      socket.on("listImages", () => this.recvListImages(socket));
+      socket.on(protocol.LIST_IMAGES, () => this.recvListImages(socket));
     });
   }
 
@@ -31,41 +31,40 @@ class ClientController {
   }
 
   onClientConnected(socket) {
-    socket.on("disconnect", this.onClientDisconnected);
-    this.clients.push(socket);
     this.notifyListeners(socket);
     this.sendImageList(socket);
   }
 
-  onClientDisconnected(leavingSocket) {
-    this.clients = this.clients.filter(socket => socket !== leavingSocket);
-  }
-
   recvUploadImage(socket, image) {
     // TODO validate msg
-    this.imageListModel
+    return this.imageListModel
       .addImage(image)
       .then(filename => {
         this.broadcastImageAdded({ filename, image: image.image });
       })
       .catch(err => {
         console.error(err);
-        socket.emit("uploadError", err.toString());
+        socket.emit(protocol.UPLOAD_ERROR, err.toString());
       });
   }
 
   recvListImages(socket) {
-    this.sendImageList(socket);
+    return this.sendImageList(socket);
   }
 
   sendImageList(socket) {
-    this.imageListModel.listImages().then(imageList => {
-      socket.emit("imageList", imageList);
+    return this.imageListModel.listImages().then(imageList => {
+      socket.emit(protocol.IMAGE_LIST, imageList);
+    })
+    .catch(err => {
+      console.error(err);
+      // No image list for you :(
+      // Causes UI inconsistency. Client connected but no image list shown.
     });
   }
 
   broadcastImageAdded(image) {
-    this.server.emit("imageAdded", image);
+    this.server.emit(protocol.IMAGE_ADDED, image);
   }
 }
 
