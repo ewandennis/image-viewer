@@ -1,0 +1,26 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`Image Viewer renders 1`] = `
+<Fragment>
+  <CssBaseline />
+  <WithStyles(ForwardRef(AppBar))
+    position="relative"
+  >
+    <WithStyles(ForwardRef(Toolbar))>
+      <PhotoCameraIcon
+        className="makeStyles-toolbarIcon-1"
+      />
+      <WithStyles(ForwardRef(Typography))
+        variant="h4"
+      >
+        Image Viewer
+      </WithStyles(ForwardRef(Typography))>
+    </WithStyles(ForwardRef(Toolbar))>
+  </WithStyles(ForwardRef(AppBar))>
+  <main
+    className="makeStyles-main-2"
+  >
+    <ImageGrid />
+  </main>
+</Fragment>
+`;

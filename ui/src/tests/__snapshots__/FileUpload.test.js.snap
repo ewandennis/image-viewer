@@ -1,0 +1,17 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`FileUpload renders 1`] = `
+<WithStyles(DropzoneArea)
+  acceptedFiles={
+    Array [
+      "image/*",
+    ]
+  }
+  filesLimit={1}
+  maxFileSize={1000000}
+  onChange={[Function]}
+  showAlerts={false}
+  showPreviews={false}
+  showPreviewsInDropzone={false}
+/>
+`;

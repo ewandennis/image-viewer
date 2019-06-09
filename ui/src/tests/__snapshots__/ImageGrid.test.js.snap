@@ -1,0 +1,44 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`ImageGrid renders 1`] = `
+<WithStyles(ForwardRef(Grid))
+  container={true}
+  justify="center"
+  spacing={5}
+>
+  <WithStyles(ForwardRef(Grid))
+    item={true}
+    xs={8}
+  >
+    <FileUpload
+      onUploadFile={[Function]}
+    />
+  </WithStyles(ForwardRef(Grid))>
+  <WithStyles(ForwardRef(Grid))
+    item={true}
+    xs={12}
+  >
+    <WithStyles(ForwardRef(GridList))
+      cols={4}
+      spacing={10}
+    >
+      <WithStyles(ForwardRef(GridListTile))
+        key="pic.jpg"
+      >
+        <img
+          alt="pic.jpg"
+          src="data:image/png;base64,still-not-very-base64-encoded"
+        />
+      </WithStyles(ForwardRef(GridListTile))>
+      <WithStyles(ForwardRef(GridListTile))
+        key="photo.gif"
+      >
+        <img
+          alt="photo.gif"
+          src="data:image/png;base64,still-not-very-base64-encoded"
+        />
+      </WithStyles(ForwardRef(GridListTile))>
+    </WithStyles(ForwardRef(GridList))>
+  </WithStyles(ForwardRef(Grid))>
+</WithStyles(ForwardRef(Grid))>
+`;
