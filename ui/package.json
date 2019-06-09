@@ -18,7 +18,9 @@
     "start": "PORT=3001 react-scripts start",
     "build": "react-scripts build",
     "test": "react-scripts test",
+    "test-ci": "CI=true npm run coverage",
     "coverage": "react-scripts test --coverage",
+    "clean": "rm -rf node_modules",
     "eject": "react-scripts eject"
   },
   "eslintConfig": {

@@ -3,9 +3,15 @@
   "version": "1.0.0",
   "description": "",
   "scripts": {
+    "test": "npm run testui && npm run testapi",
+    "testui": "cd ui && npm test-ci",
+    "testapi": "cd api && npm test-ci",
     "build": "npm run buildapi && npm run buildui && docker build -t image-viewer .",
     "buildui": "cd ui && npm ci && npm run build",
     "buildapi": "cd api && npm ci",
+    "cleanui": "cd ui && npm run clean",
+    "cleanapi": "cd api && npm run clean",
+    "clean": "npm run cleanui && npm run cleanapi",
     "start": "docker run -p 3000:3000 -d image-viewer"
   },
   "author": "Ewan Dennis <ewandennis@users.noreply.github.com>",

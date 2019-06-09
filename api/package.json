@@ -7,6 +7,8 @@
     "start": "node index",
     "runTests": "jest tests",
     "test": "npm run runTests -- --watch",
+    "test-ci": "CI=true npm run coverage",
+    "clean": "rm -rf node_modules",
     "coverage": "npm run runTests -- --coverage"
   },
   "keywords": [],
