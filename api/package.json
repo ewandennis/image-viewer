@@ -4,7 +4,10 @@
   "description": "Image Viewer API Service",
   "main": "index.js",
   "scripts": {
-    "start": "node index"
+    "start": "node index",
+    "runTests": "jest tests",
+    "test": "npm run runTests -- --watch",
+    "coverage": "npm run runTests -- --coverage"
   },
   "keywords": [],
   "author": "Ewan Dennis <ewandennis@users.noreply.github.com>",
@@ -17,6 +20,7 @@
     "eslint": "^5.16.0",
     "eslint-config-airbnb-base": "^13.1.0",
     "eslint-config-prettier": "^4.3.0",
-    "eslint-plugin-import": "^2.17.3"
+    "eslint-plugin-import": "^2.17.3",
+    "jest": "^24.8.0"
   }
 }
