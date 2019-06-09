@@ -1,34 +1,28 @@
-import React from 'react';
-import socketIoClient from 'socket.io-client';
-import { webSocketEndpoint } from './config';
-
-// TODO move this out of top-level scope
-// TODO close connection cleanly on app unmount?
-const client = socketIoClient(webSocketEndpoint);
+import { useState, useEffect } from 'react';
+import protocol from './protocol';
 
 /*
  * Provide access to an shared image list.
- * 
+ *
  * API service maintains the source of truth.
  * This client uses a websocket to keep a local copy in sync.
- * 
+ *
  * @typedef {Object<string, any>} ImageService
  * @property {string} images The current image list
  * @property {function} uploadImage A way to upload new images
  * @param {string} endpoint API service websocket endpoint
  * @returns {ImageService}
  */
-export default function useImageService(endpoint) {
-  const [images, setImages] = React.useState(null);
+export default function useImageService(client) {
+  const [images, setImages] = useState(null);
 
-  const uploadImage = (filename, image) => {
-    client.emit('uploadImage', { filename, image });
+  const uploadImage = ({ filename, image }) => {
+    client.emit(protocol.UPLOAD_IMAGE, { filename, image });
   };
 
-  React.useEffect(() => {
+  useEffect(() => {
     const onImageList = imageList => {
       // TODO validate msg
-      console.log(imageList);
       setImages(imageList);
     };
 
@@ -37,18 +31,18 @@ export default function useImageService(endpoint) {
       setImages([...images, image]);
     };
 
-    client.on('imageList', onImageList);
-    client.on('imageAdded', onImageAdded);
+    client.on(protocol.IMAGE_LIST, onImageList);
+    client.on(protocol.IMAGE_ADDED, onImageAdded);
 
     if (images === null) {
-      client.emit('listImages');
+      client.emit(protocol.LIST_IMAGES);
     }
 
     return () => {
-      client.removeEventListener('imageList', onImageList);
-      client.removeEventListener('imageAdded', onImageAdded);
+      client.removeEventListener(protocol.IMAGE_LIST, onImageList);
+      client.removeEventListener(protocol.IMAGE_ADDED, onImageAdded);
     };
-  }, [images]);
+  }, [images, setImages, client]);
 
   return { images, uploadImage };
 }

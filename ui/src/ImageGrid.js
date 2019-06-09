@@ -1,72 +1,55 @@
 import React, { useState, useCallback } from "react";
-import { DropzoneArea } from "material-ui-dropzone";
 
+import Grid from "@material-ui/core/Grid";
 import GridList from "@material-ui/core/GridList";
 import GridListTile from "@material-ui/core/GridListTile";
-import Container from "@material-ui/core/Container";
-import CircularProgress from "@material-ui/core/CircularProgress";
 
+import Loading from "./Loading";
+import FileUpload from "./FileUpload";
 import useImageService from "./useImageService";
-import { webSocketEndpoint, maxFileSizeBytes } from "./config";
-import readFile from './readFile';
-
-const Loading = () => (
-  <div>
-    <CircularProgress />
-  </div>
-);
-
-function FileUpload({ onUploadFile }) {
-  const handleChange = React.useCallback(fileList => {
-    if (fileList && fileList.length > 0) {
-      onUploadFile(fileList[0]);
-    }
-  }, [onUploadFile]);
-
-  return (
-    <DropzoneArea
-      acceptedFiles={["image/*"]}
-      filesLimit={1}
-      maxFileSize={maxFileSizeBytes}
-      showAlerts={false}
-      showPreviews={false}
-      showPreviewsInDropzone={false}
-      onChange={handleChange}
-    />
-  );
-}
+import socketIoClient from 'socket.io-client';
+import { webSocketEndpoint } from "./config";
+import readFile from "./readFile";
 
 export default function ImageGrid() {
-  const { images, uploadImage } = useImageService(webSocketEndpoint);
+  const [ client, _ ] = useState(socketIoClient(webSocketEndpoint)); // eslint-disable-line no-unused-vars
+  const { images, uploadImage } = useImageService(client);
   const [uploading, setUploading] = useState(false);
-  const handleUpload = useCallback((file) => {
-    setUploading(true);
-    readFile(file)
-    .then(({ name, content }) => {
-      uploadImage(name, btoa(content));
-      setUploading(false);
-    })
-    .catch((err) => {
-      // TODO error UI
-      console.error(err);
-      setUploading(false);
-    });
-  }, [setUploading, uploadImage]);
+  const handleUpload = useCallback(
+    file => {
+      setUploading(true);
+      return readFile(file)
+        .then(({ name, content }) => {
+          uploadImage({ filename: name , image: btoa(content) });
+          setUploading(false);
+        })
+        .catch(err => {
+          // TODO error UI
+          console.error(err);
+          setUploading(false);
+        });
+    },
+    [setUploading, uploadImage]
+  );
 
-  return images === null ? (
-    <Loading />
-  ) : (
-    <>
-      <Container maxWidth="xs">{uploading ? <Loading /> : <FileUpload onUploadFile={handleUpload} />}</Container>
-      <Container maxWidth="xs">
-        <GridList cols={4}>
-          {images.map((img, idx) => (
-            <GridListTile key={idx}>
+  if (images === null) {
+    return <Loading />;
+  }
+
+  return (
+    <Grid container justify="center" spacing={5}>
+      <Grid item xs={8}>
+        {uploading ? <Loading /> : <FileUpload onUploadFile={handleUpload} />}
+      </Grid>
+      <Grid item xs={12}>
+        <GridList cols={4} spacing={10}>
+          {images.map(img => (
+            <GridListTile key={img.filename}>
               <img src={`data:image/png;base64,${img.image}`} alt={img.filename} />
             </GridListTile>
           ))}
         </GridList>
-      </Container>
-    </>
+      </Grid>
+    </Grid>
   );
 }
