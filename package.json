@@ -1,0 +1,13 @@
+{
+  "name": "image-view",
+  "version": "1.0.0",
+  "description": "",
+  "scripts": {
+    "build": "npm run buildapi && npm run buildui && docker build -t image-viewer .",
+    "buildui": "cd ui && npm ci && npm run build",
+    "buildapi": "cd api && npm ci",
+    "start": "docker run -p 3000:3000 -d image-viewer"
+  },
+  "author": "Ewan Dennis <ewandennis@users.noreply.github.com>",
+  "license": "Apache-2.0"
+}
