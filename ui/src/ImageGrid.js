@@ -1,37 +1,68 @@
-import React from "react";
-import useImageService from "./useImageService";
-import { webSocketEndpoint } from "./config";
+import React, { useState, useCallback } from "react";
+import { DropzoneArea } from "material-ui-dropzone";
 
-import Card from "@material-ui/core/Card";
-import CardMedia from "@material-ui/core/CardMedia";
 import GridList from "@material-ui/core/GridList";
 import GridListTile from "@material-ui/core/GridListTile";
 import Container from "@material-ui/core/Container";
-import Button from "@material-ui/core/Button";
+import CircularProgress from "@material-ui/core/CircularProgress";
 
-const Loading = () => <strong>Hold please...</strong>;
+import useImageService from "./useImageService";
+import { webSocketEndpoint, maxFileSizeBytes } from "./config";
+import readFile from './readFile';
 
-// color range PNG
-const testImage =
-  "iVBORw0KGgoAAAANSUhEUgAAASwAAAEsCAIAAAD2HxkiAAADl0lEQVR4nO3ZMYrDQBREwR7j+19Zip0JHLxAVWy0IHDyaJh/tmu7zu/ftvPon/Otb33757efAanvTv0T4N1ECDERQkyEEBMhxLyOQswSQkyEEBMhxEQIMRFCTIQQc6KAmCWEmAghJkKIiRBiIoSYCCHmRAExSwgxEUJMhBATIcRECDGvoxCzhBATIcRECDERQkyEEBMhxJwoIGYJISZCiIkQYiKEmAghJkKIOVFAzBJCTIQQEyHERAgxEULM6yjELCHERAgxEUJMhBATIcRECDEnCohZQoiJEGIihJgIISZCiIkQYk4UELOEEBMhxEQIMRFCTIQQ8zoKMUsIMRFCTIQQEyHERAgxEULMiQJilhBiIoSYCCEmQoiJEGIihJgTBcQsIcRECDERQkyEEBMhxLyOQswSQkyEEBMhxEQIMRFCTIQQc6KAmCWEmAghJkKIiRBiIoSYCCHmRAExSwgxEUJMhBATIcRECDGvoxCzhBATIcRECDERQkyEEBMhxJwoIGYJISZCiIkQYiKEmAghJkKIOVFAzBJCTIQQEyHERAgxEULM6yjELCHERAgxEUJMhBATIcRECDEnCohZQoiJEGIihJgIISZCiIkQYk4UELOEEBMhxEQIMRFCTIQQ8zoKMUsIMRFCTIQQEyHERAgxEULMiQJilhBiIoSYCCEmQoiJEGIihJgTBcQsIcRECDERQkyEEBMhxLyOQswSQkyEEBMhxEQIMRFCTIQQc6KAmCWEmAghJkKIiRBiIoSYCCHmRAExSwgxEUJMhBATIcRECDGvoxCzhBATIcRECDERQkyEEBMhxJwoIGYJISZCiIkQYiKEmAghJkKIOVFAzBJCTIQQEyHERAgxEULM6yjELCHERAgxEUJMhBATIcRECDEnCohZQoiJEGIihJgIISZCiIkQYk4UELOEEBMhxEQIMRFCTIQQ8zoKMUsIMRFCTIQQEyHERAgxEULMiQJilhBiIoSYCCEmQoiJEGIihJgTBcQsIcRECDERQkyEEBMhxLyOQswSQkyEEBMhxEQIMRFCTIQQc6KAmCWEmAghJkKIiRBiIoSYCCHmRAExSwgxEUJMhBATIcRECDGvoxCzhBATIcRECDERQkyEEBMhxJwoIGYJISZCiIkQYiKEmAghJkKIOVFAzBJCTIQQEyHERAgxEULM6yjELCHERAgxEUJMhBATIcRECDEnCohZQoiJEGIihJgIISZCiN0HtAVfIctU0QAAAABJRU5ErkJggg==";
+const Loading = () => (
+  <div>
+    <CircularProgress />
+  </div>
+);
+
+function FileUpload({ onUploadFile }) {
+  const handleChange = React.useCallback(fileList => {
+    if (fileList && fileList.length > 0) {
+      onUploadFile(fileList[0]);
+    }
+  }, [onUploadFile]);
+
+  return (
+    <DropzoneArea
+      acceptedFiles={["image/*"]}
+      filesLimit={1}
+      maxFileSize={maxFileSizeBytes}
+      showAlerts={false}
+      showPreviews={false}
+      showPreviewsInDropzone={false}
+      onChange={handleChange}
+    />
+  );
+}
 
 export default function ImageGrid() {
   const { images, uploadImage } = useImageService(webSocketEndpoint);
-  const onUploadClick = React.useCallback(() => uploadImage("testaroo.png", testImage), [uploadImage]);
+  const [uploading, setUploading] = useState(false);
+  const handleUpload = useCallback((file) => {
+    setUploading(true);
+    readFile(file)
+    .then(({ name, content }) => {
+      uploadImage(name, btoa(content));
+      setUploading(false);
+    })
+    .catch((err) => {
+      // TODO error UI
+      console.error(err);
+      setUploading(false);
+    });
+  }, [setUploading, uploadImage]);
+
   return images === null ? (
     <Loading />
   ) : (
     <>
-      <Container maxWidth="xs">
-        <Button variant="contained" color="primary" onClick={onUploadClick}>
-          Upload image
-        </Button>
-      </Container>
+      <Container maxWidth="xs">{uploading ? <Loading /> : <FileUpload onUploadFile={handleUpload} />}</Container>
       <Container maxWidth="xs">
         <GridList cols={4}>
           {images.map((img, idx) => (
             <GridListTile key={idx}>
-              <img src={`data:image/png;base64,${testImage}`} />
+              <img src={`data:image/png;base64,${img.image}`} alt={img.filename} />
             </GridListTile>
           ))}
         </GridList>

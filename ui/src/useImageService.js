@@ -28,6 +28,7 @@ export default function useImageService(endpoint) {
   React.useEffect(() => {
     const onImageList = imageList => {
       // TODO validate msg
+      console.log(imageList);
       setImages(imageList);
     };
 
