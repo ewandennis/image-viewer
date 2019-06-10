@@ -3,6 +3,8 @@
 const ClientController = require("../clientController");
 const protocol = require("../protocol");
 
+const { mockImageBase64 } = require('./mockImage');
+
 const mockSocketIo = () => ({
   on: jest.fn(),
   emit: jest.fn()
@@ -14,12 +16,12 @@ const mockSocket = () => ({
 });
 
 const mockImage = "still-not-very-base64-encoded";
-const mockImagefilename = "rando-pic.jpg";
+const mockImageFilename = "rando-pic.jpg";
 const mockImageList = [{ filename: "pic.jpg", image: mockImage }, { filename: "photo.gif", image: mockImage }];
 const mockImageListModel = () => ({
   listImages: jest.fn().mockResolvedValue(mockImageList),
 
-  addImage: jest.fn().mockResolvedValue(mockImagefilename)
+  addImage: jest.fn().mockResolvedValue(mockImageFilename)
 });
 
 // eslint-disable-next-line no-unused-vars
@@ -41,7 +43,7 @@ describe("Client controller", () => {
   });
 
   describe("with client connection", () => {
-    const filename = "splango.jpg";
+    const filename = "splango.png";
     let connectListener;
     let socket;
     let onClientConnect;
@@ -74,17 +76,19 @@ describe("Client controller", () => {
 
     it("forwards uploaded images to the model", () => {
       const onUploadImage = findEventListener(socket.on.mock.calls, protocol.UPLOAD_IMAGE);
-      onUploadImage({ filename, image: mockImage });
-      expect(mockModel.addImage).toHaveBeenCalledTimes(1);
-      expect(mockModel.addImage).toHaveBeenCalledWith({ filename, image: mockImage });
+      return expect(onUploadImage({ filename, image: mockImageBase64 })).toResolve()
+      .then(() => {
+        expect(mockModel.addImage).toHaveBeenCalledTimes(1);
+        expect(mockModel.addImage).toHaveBeenCalledWith({ filename, image: mockImageBase64 });
+      }); 
     });
 
     it("broadcasts new images after storage", () => {
       const onUploadImage = findEventListener(socket.on.mock.calls, protocol.UPLOAD_IMAGE);
-      return onUploadImage({ filename, image: mockImage }).then(() => {
+      return expect(onUploadImage({ filename, image: mockImageBase64 })).toResolve().then(() => {
         expect(mockServer.emit).toHaveBeenCalledWith(protocol.IMAGE_ADDED, {
-          filename: mockImagefilename,
-          image: mockImage
+          filename: mockImageFilename,
+          image: mockImageBase64
         });
       });
     });
@@ -97,19 +101,20 @@ describe("Client controller", () => {
         mockModel.addImage.mockRejectedValueOnce(err);
         onUploadImage = findEventListener(socket.on.mock.calls, protocol.UPLOAD_IMAGE);
 
-        // Wheesht on error
+        // Wheesht on warn/error
+        jest.spyOn(console, 'warn').mockImplementation(() => {});
         jest.spyOn(console, 'error').mockImplementation(() => {});
       });
 
       it("does not broadcast failed image uploads", () => {
-        return onUploadImage({ filename, image: mockImage }).then(() => {
-          expect(mockServer.emit).not.toHaveBeenCalledWith(protocol.IMAGE_ADDED, expect.anything());
+        return onUploadImage({ filename, image: mockImageBase64 }).then(() => {
+          expect(mockServer.emit).not.toHaveBeenCalledWith(protocol.IMAGE_ADDED, err.toString());
         });
       });
 
       it("translates exceptions writing an image into upload error messages", () => {
-        return onUploadImage({ filename, image: mockImage }).then(() => {
-          expect(socket.emit).toHaveBeenCalledWith(protocol.UPLOAD_ERROR, err.toString());
+        return onUploadImage({ filename, image: mockImageBase64 }).then(() => {
+          expect(socket.emit).toHaveBeenCalledWith(protocol.UPLOAD_ERROR, expect.any(String));
         });
       });
     });

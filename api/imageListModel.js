@@ -24,9 +24,6 @@ class ImageListModel {
   }
 
   addImage({ filename, image }) {
-    if (!isImageFilename(filename)) {
-      return Promise.reject(new Error(`Not an acceptable image. Try one of ${config.acceptedFileTypes.join(",")}`));
-    }
     const imageBytes = Buffer.from(image, "base64");
     return this.writeImage(imageBytes, path.extname(filename));
   }

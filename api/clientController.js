@@ -1,6 +1,7 @@
 "use strict";
 
 const protocol = require('./protocol');
+const { validateUploadImageMsg } = require('./validation');
 
 class ClientController {
   constructor(socketIoServer, imageListModel) {
@@ -35,12 +36,12 @@ class ClientController {
     this.sendImageList(socket);
   }
 
-  recvUploadImage(socket, image) {
-    // TODO validate msg
-    return this.imageListModel
-      .addImage(image)
+  recvUploadImage(socket, payload) {
+    return validateUploadImageMsg(payload)
+      .then(() => this.imageListModel.addImage(payload))
       .then(filename => {
-        this.broadcastImageAdded({ filename, image: image.image });
+          this.broadcastImageAdded({ filename, image: payload.image });
+          return this.imageListModel;
       })
       .catch(err => {
         console.error(err);

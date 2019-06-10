@@ -56,12 +56,6 @@ describe("Image list model", () => {
       jest.spyOn(tmp, "tmpNameSync").mockReturnValue(tmpFilename);
     });
 
-    it("rejects unexpected file types", () => {
-      return expect(imageListModel.addImage({ filename: "fear-me.doc", image: mockImage })).rejects.toEqual(
-        expect.any(Error)
-      );
-    });
-
     it("writes to the filesystem", () => {
       return imageListModel.addImage({ filename, image }).then(() => {
         expect(fs.promises.writeFile).toHaveBeenCalledTimes(1);
