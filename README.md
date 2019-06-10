@@ -54,7 +54,6 @@ The app is now running on [http://localhost:3000/](http://localhost:3000/).
 Run `npm test` in `image-viewer`, `image-viewer/ui` or `image-viewer/api`.
 
 ### Issues / To Do
- - Web socket event validation
  - UI upload error reporting
  - User identification / authentication
  - User automation / functional testing

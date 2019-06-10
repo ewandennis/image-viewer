@@ -4,8 +4,8 @@
   "description": "",
   "scripts": {
     "test": "npm run testui && npm run testapi",
-    "testui": "cd ui && npm test-ci",
-    "testapi": "cd api && npm test-ci",
+    "testui": "cd ui && npm run test-ci",
+    "testapi": "cd api && npm run test-ci",
     "build": "npm run buildapi && npm run buildui && docker build -t image-viewer .",
     "buildui": "cd ui && npm ci && npm run build",
     "buildapi": "cd api && npm ci",
