@@ -11,9 +11,7 @@ const isImageFilename = filename => config.acceptedFileTypes.indexOf(path.extnam
 class ImageListModel {
   listImages() {
     return fs.readdir(config.imageStore).then(filenames => {
-      console.log(`Found ${filenames.length} files. Filtering...`);
       const acceptable = filenames.filter(isImageFilename);
-      console.log(`Found ${acceptable.length} images. Loading...`);
       return Promise.all(
         acceptable.map(filename =>
           fs.readFile(path.join(config.imageStore, filename)).then(fileContent => ({
